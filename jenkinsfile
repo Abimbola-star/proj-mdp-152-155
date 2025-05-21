@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        IMAGE_NAME = 'abimbola1994/java-calc'
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
+        TAG = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'project1-vm', url: 'https://github.com/Abimbola-star/proj-mdp-152-155.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}:${TAG}")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        dockerImage.push("${TAG}")
+                        dockerImage.push("latest")
+                    }
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    sh '''
+                    docker rm -f calc-app || true
+                    docker run -d --name calc-app -p 8000:8080 abimbola1994/java-calc:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Calculator app deployed to Tomcat on port 8000"
+        }
+        failure {
+            echo "❌ Build failed. Check logs."
+        }
+    }
+}
