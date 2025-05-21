@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
-
     environment {
         IMAGE_NAME = 'abimbola1994/java-calc'
         DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
