@@ -1,48 +1,50 @@
 ---
-- name: Install Kubernetes cluster with Kops
+- name: Install kubernetes cluster with kops
   hosts: k8s_ws
   become: yes
-
   vars:
     cluster_name: "prod.k8s.local"
-    state_store: "s3://k8-bucket-abi8971"
+    state_store: "k8-bucket-abi8971"
     zones: "us-east-1a,us-east-1b"
     node_size: "t2.medium"
-    master_size: "t2.medium"
+    control_plane_size: "t2.medium"   # updated from master_size (deprecated)
     node_count: 2
 
   tasks:
-    - name: Create a Kubernetes cluster using Kops
+    - name: Create Kubernetes cluster config if it does not exist
       command: >
         /usr/local/bin/kops create cluster
-        --name={{ cluster_name }}
-        --state={{ state_store }}
-        --zones={{ zones }}
-        --node-count={{ node_count }}
-        --node-size={{ node_size }}
-        --master-size={{ master_size }}
-        --yes
+        --name {{ cluster_name }}
+        --state s3://{{ state_store }}
+        --zones {{ zones }}
+        --node-count {{ node_count }}
+        --node-size {{ node_size }}
+        --control-plane-size {{ control_plane_size }}
       register: kops_create_cluster
+      failed_when: "'already exists' not in kops_create_cluster.stderr and kops_create_cluster.rc != 0"
+      changed_when: "'already exists' not in kops_create_cluster.stderr"
 
-    - name: Wait for a few seconds to allow cluster creation to start
-      pause:
-        seconds: 60
+    - name: Update and apply the Kubernetes cluster configuration
+      command: >
+        /usr/local/bin/kops update cluster
+        --name {{ cluster_name }}
+        --state s3://{{ state_store }}
+        --yes
 
     - name: Validate the cluster creation
       command: >
         /usr/local/bin/kops validate cluster
-        --name={{ cluster_name }}
-        --state={{ state_store }}
+        --name {{ cluster_name }}
+        --state s3://{{ state_store }}
       register: kops_validate_cluster
-      retries: 10
+      retries: 5
       delay: 60
       until: kops_validate_cluster.rc == 0
 
     - name: Output the result of the cluster creation
       debug:
-        var: kops_create_cluster.stdout
+        var: kops_validate_cluster.stdout
 ...
-
 
 
  
