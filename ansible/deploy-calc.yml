@@ -5,6 +5,22 @@
   gather_facts: no
 
   tasks:
+    - name: Check if kubeconfig file exists
+      stat:
+        path: /home/ec2-user/.kube/config
+      register: kubeconfig_file
+
+    - name: Fail if kubeconfig file is missing
+      fail:
+        msg: "Kubeconfig file /home/ec2-user/.kube/config does not exist on the remote host."
+      when: not kubeconfig_file.stat.exists
+
+    - name: Ensure remote directory exists
+      file:
+        path: /home/ec2-user/k8s
+        state: directory
+        mode: '0755'
+
     - name: Copy deployment manifest to remote
       copy:
         src: /home/ec2-user/proj-mdp-152-155/k8s/deployment.yml
@@ -29,5 +45,7 @@
         state: present
         src: /home/ec2-user/k8s/service.yml
 ...
+
+
 
 
