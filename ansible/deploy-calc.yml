@@ -10,5 +10,12 @@
         kubeconfig: /root/.kube/config
         state: present
         src: /home/ec2-user/proj-mdp-152-155/k8s/deployment.yml
+
+    - name: Apply service manifest
+      kubernetes.core.k8s:
+        kubeconfig: /root/.kube/config
+        state: present
+        src: /home/ec2-user/proj-mdp-152-155/k8s/service.yml
 ...
+
 
