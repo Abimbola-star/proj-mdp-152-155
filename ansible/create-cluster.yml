@@ -1,7 +1,8 @@
 ---
-- name: Install Kubernetes cluster with kops
+- name: Install Kubernetes cluster with Kops
   hosts: k8s_ws
   become: yes
+
   vars:
     cluster_name: "prod.k8s.local"
     state_store: "s3://k8-bucket-abi8971"
@@ -11,9 +12,9 @@
     node_count: 2
 
   tasks:
-    - name: Create Kubernetes cluster using kops
+    - name: Create a Kubernetes cluster using Kops
       command: >
-        kops create cluster
+        /usr/local/bin/kops create cluster
         --name={{ cluster_name }}
         --state={{ state_store }}
         --zones={{ zones }}
@@ -21,30 +22,27 @@
         --node-size={{ node_size }}
         --master-size={{ master_size }}
         --yes
-      environment:
-        KOPS_STATE_STORE: "{{ state_store }}"
       register: kops_create_cluster
 
-    - name: Wait for 3 minutes for resources to be created (optional)
+    - name: Wait for a few seconds to allow cluster creation to start
       pause:
-        minutes: 3
+        seconds: 60
 
-    - name: Validate the cluster
+    - name: Validate the cluster creation
       command: >
-        kops validate cluster
+        /usr/local/bin/kops validate cluster
         --name={{ cluster_name }}
         --state={{ state_store }}
-      environment:
-        KOPS_STATE_STORE: "{{ state_store }}"
       register: kops_validate_cluster
       retries: 10
-      delay: 30
+      delay: 60
       until: kops_validate_cluster.rc == 0
 
     - name: Output the result of the cluster creation
       debug:
         var: kops_create_cluster.stdout
 ...
+
 
 
  
