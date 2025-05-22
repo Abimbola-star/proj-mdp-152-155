@@ -1,0 +1,35 @@
+---
+- name: Install kubernetes cluster with kops
+  hosts: k8s_ws
+  become: yes
+  vars:
+    cluster_name: "prod.k8s.local"
+    state_store: "s3://k8-bucket-abi8971"
+    zones: "us-east-1a,us-east-1b"
+    node_size: "t2.medium"
+    master_size: "t2.medium"
+    node_count: 2
+    
+    tasks:
+     - name: Create a Kubernetes cluster using kops
+       command: >
+          kops create cluster
+          --name {{ cluster_name }}
+          --state s3://{{ state_store }}
+          --zones {{ zones }}
+          --node-count {{ node_count }}
+          --node-size {{ node_size }}
+          --master-size {{ master_size }}
+       register: kops_create_cluster
+
+     - name: Validate the cluster creation
+       command: kops validate cluster --name {{ cluster_name }} --state s3://{{ state_store }}
+       register: kops_validate_cluster
+
+     - name: Output the result of the cluster creation
+       debug:
+        var: kops_create_cluster.stdout
+...
+
+
+ 

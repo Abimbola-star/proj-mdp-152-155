@@ -1,0 +1,38 @@
+---
+- name: Install AWS CLI, kubectl, Kops
+  hosts: k8s_ws
+  become: yes
+  tasks:
+    - name: Update packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install AWS CLI
+      yum:
+        name: awscli
+        state: present
+
+    - name: Install unzip, curl
+      yum:
+        name: ['unzip', 'curl']
+        state: present
+
+    - name: Install kubectl
+      shell: |
+        curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        mv kubectl /usr/local/bin/
+
+    - name: Install Kops
+      shell: |
+        curl -Lo kops https://github.com/kubernetes/kops/releases/latest/download/kops-linux-amd64
+        chmod +x kops
+        mv kops /usr/local/bin/
+...
+
+
+
+
+
+
