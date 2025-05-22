@@ -1,0 +1,10 @@
+---
+- name: Deploy calculator service to Kubernetes
+  hosts: k8s_ws
+  gather_facts: no
+  tasks:
+    - name: Apply calculator service manifest
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', 'calculator-service.yaml') }}"
+...
