@@ -21,7 +21,7 @@
         state: present
 
     - name: Get latest kubectl version
-      shell: curl -s https://dl.k8s.io/release/stable.txt
+      shell: curl -Ls https://dl.k8s.io/release/stable.txt
       register: kubectl_version
       args:
         executable: /bin/bash
