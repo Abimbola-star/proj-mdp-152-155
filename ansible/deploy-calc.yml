@@ -5,17 +5,29 @@
   gather_facts: no
 
   tasks:
+    - name: Copy deployment manifest to remote
+      copy:
+        src: /home/ec2-user/proj-mdp-152-155/k8s/deployment.yml
+        dest: /home/ec2-user/k8s/deployment.yml
+        mode: '0644'
+
+    - name: Copy service manifest to remote
+      copy:
+        src: /home/ec2-user/proj-mdp-152-155/k8s/service.yml
+        dest: /home/ec2-user/k8s/service.yml
+        mode: '0644'
+
     - name: Apply deployment manifest
       kubernetes.core.k8s:
         kubeconfig: /home/ec2-user/.kube/config
         state: present
-        src: /home/ec2-user/proj-mdp-152-155/k8s/deployment.yml
+        src: /home/ec2-user/k8s/deployment.yml
 
     - name: Apply service manifest
       kubernetes.core.k8s:
         kubeconfig: /home/ec2-user/.kube/config
         state: present
-        src: /home/ec2-user/proj-mdp-152-155/k8s/service.yml
+        src: /home/ec2-user/k8s/service.yml
 ...
 
 
