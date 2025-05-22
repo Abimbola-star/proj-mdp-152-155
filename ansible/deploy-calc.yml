@@ -1,6 +1,7 @@
 ---
 - name: Deploy Calculator App to Kubernetes
   hosts: k8s_ws
+  become: no
   gather_facts: no
 
   tasks:
