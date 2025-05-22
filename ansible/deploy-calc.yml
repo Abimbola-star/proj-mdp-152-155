@@ -1,11 +1,11 @@
 ---
 - name: Deploy Calculator App to Kubernetes
   hosts: k8s_ws
-  become: yes
+  gather_facts: no
   tasks:
     - name: Apply deployment manifest
       kubernetes.core.k8s:
         kubeconfig: /root/.kube/config
         state: present
-        src: ../k8s/deployment.yaml
+        src: /home/ec2-user/proj-mdp-152-155/k8s/deployment.yml
 ...

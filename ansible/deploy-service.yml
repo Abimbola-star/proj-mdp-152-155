@@ -5,6 +5,8 @@
   tasks:
     - name: Apply calculator service manifest
       kubernetes.core.k8s:
+        kubeconfig: /root/.kube/config
         state: present
-        definition: "{{ lookup('file', 'calculator-service.yaml') }}"
+        definition: "{{ lookup('file', 'calculator-service.yaml') | from_yaml }}"
 ...
+
