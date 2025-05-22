@@ -20,13 +20,17 @@
           - curl
         state: present
 
-    - name: Install kubectl
-      shell: |
-        curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl
-        mv kubectl /usr/local/bin/
+    - name: Get latest kubectl version
+      shell: curl -s https://dl.k8s.io/release/stable.txt
+      register: kubectl_version
       args:
         executable: /bin/bash
+
+    - name: Download kubectl binary
+      get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version.stdout }}/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
 
 
     - name: Install Kops
