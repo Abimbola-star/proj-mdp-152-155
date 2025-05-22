@@ -15,7 +15,9 @@
 
     - name: Install unzip, curl
       yum:
-        name: ['unzip', 'curl']
+        name:
+          - unzip
+          - curl
         state: present
 
     - name: Install kubectl
