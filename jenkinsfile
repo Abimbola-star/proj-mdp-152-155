@@ -37,25 +37,30 @@ pipeline {
          stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG
+                    script {
+                        sh '''
+                        echo "📁 Listing workspace files..."
+                        ls -R
+
+                        echo "📦 Deploying to Kubernetes cluster..."
                         kubectl apply -f k8s/deployment.yaml
                         kubectl apply -f k8s/service.yaml
-                    '''
+                        '''
+                    }
                 }
             }
         }
     }
+
     post {
         success {
-            echo ":white_check_mark: Deployment successful!"
+            echo "✅ Calculator app built, pushed, and deployed to Kubernetes"
         }
         failure {
-            echo ":x: Deployment failed. Check logs for details."
+            echo "❌ Build or deployment failed. Check logs."
         }
     }
 }
-
 
 
 
