@@ -4,13 +4,14 @@ pipeline {
     environment {
         IMAGE_NAME = 'abimbola1994/java-calc'
         DOCKER_HUB_CREDENTIALS = 'docker-hub-creds'
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-secret'
         TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'project1-vm', url: 'https://github.com/Abimbola-star/proj-mdp-152-155.git'
+                git branch: 'project-3', url: 'https://github.com/Abimbola-star/proj-mdp-152-155.git'
             }
         }
 
@@ -33,24 +34,35 @@ pipeline {
             }
         }
 
-        stage('Run Container') {
+         stage('Deploy to Kubernetes') {
             steps {
-                script {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
                     sh '''
-                    docker rm -f calc-app || true
-                    docker run -d --name calc-app -p 8000:8080 abimbola1994/java-calc:${BUILD_NUMBER}
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/service.yaml
                     '''
                 }
             }
         }
     }
-
     post {
         success {
-            echo "✅ Calculator app deployed to Tomcat on port 8000"
+            echo ":white_check_mark: Deployment successful!"
         }
         failure {
-            echo "❌ Build failed. Check logs."
+            echo ":x: Deployment failed. Check logs for details."
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
